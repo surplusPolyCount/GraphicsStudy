@@ -1,0 +1,50 @@
+﻿// Each #kernel tells which function to compile; you can have many kernels
+#pragma kernel CSMain
+
+// Create a RenderTexture with enableRandomWrite flag and set it
+// with cs.SetTexture
+RWTexture2D<float4> Result;
+
+float2 getComplexCoords(int x, int y, float xPlane, float yPlane, float width, float height) {
+    float2 result =float2(
+        ((xPlane*2) / (width - 1)) * x + xPlane,
+        ((yPlane*2) / (height - 1)) * y + yPlane
+        );
+    return result;
+}
+
+float2 isInSet(int xcor, int ycor) {
+    int bail = 255;
+    int cur = 0;
+    int z = 0;
+    int a = xcor;
+    int b = ycor;
+    do {
+        float xtemp = a;
+        float ytemp = b;
+        a = xtemp * xtemp - ytemp * ytemp + xcor;
+        b = xtemp * ytemp * 2 + ycor;
+    } while (cur++ < bail && a + b <= 4);
+   
+    return float2(a, b);
+}
+
+[numthreads(8,8,1)]
+void CSMain (uint3 id : SV_DispatchThreadID)
+{
+    uint width, height;
+    Result.GetDimensions(width, height);
+
+    float xCoor = 2.5; 
+    float yCoor = 1;
+
+    // TODO: insert actual code here!
+    float2 complex_coords = getComplexCoords(id.x, id.y, xCoor, yCoor, width, height);
+    float2 ab = isInSet(complex_coords[0], complex_coords[1]);
+    if (ab[0] + ab[1] <= 4) {
+        Result[id.xy]= float4(0, 0, 0, 1);
+    }   
+    else {
+        Result[id.xy] = float4(255, 255, 255, 1);
+    }
+}

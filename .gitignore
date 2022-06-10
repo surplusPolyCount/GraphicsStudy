@@ -1,0 +1,8 @@
+*.meta
+*.opendb
+.vs/ 
+Packages/
+ProjectSettings/
+Builds/
+Temp/ 
+UserSettings/
